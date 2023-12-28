@@ -46,6 +46,18 @@ const addEmailToWaitingList = async (email: string) => {
       throw new Error("Email already in waiting list");
     }
 
+    // add email to waiting list
+    const data = {
+      email: email,
+    };
+
+    await databases.createDocument(
+      databaseId!,
+      waitlistCollectionId!,
+      ID.unique(),
+      data
+    );
+
     return {
       status: "200",
     };
