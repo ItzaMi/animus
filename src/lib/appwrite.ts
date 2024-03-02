@@ -66,23 +66,6 @@ const addEmailToWaitingList = async (email: string) => {
   }
 };
 
-const loginUser = async () => {
-  try {
-    const login = account.createOAuth2Session(
-      "google",
-      "http://localhost:3000/dashboard",
-      "http://localhost:3000"
-    );
-
-    return {
-      ...login,
-      status: "200",
-    };
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const getUser = async () => {
   try {
     return await account.get();
@@ -91,7 +74,7 @@ const getUser = async () => {
   }
 };
 
-const getUserFromDatabase = async () => {
+const addUserToDatabase = async () => {
   try {
     const user = await getUser();
 
@@ -105,7 +88,34 @@ const getUserFromDatabase = async () => {
       [Query.equal("id", [user.$id])]
     );
 
-    return userFromDatabase.documents[0];
+    console.log("2", userFromDatabase);
+
+    const data = {
+      id: user.$id,
+      name: user.name,
+      email: user.email,
+    };
+
+    await databases.createDocument(
+      databaseId!,
+      usersCollectionId!,
+      ID.unique(),
+      data
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const loginUser = async () => {
+  try {
+    const login = account.createOAuth2Session(
+      "google",
+      "http://localhost:3000/dashboard",
+      "http://localhost:3000"
+    );
+
+    return login;
   } catch (error) {
     console.error(error);
   }
@@ -124,7 +134,7 @@ const saveMood = async ({
   mood: Mood;
   reason: string | null;
 }) => {
-  const user = await getUserFromDatabase();
+  const user = await getUser();
 
   if (!user) {
     return Error("User not logged in");
@@ -150,5 +160,26 @@ const saveMood = async ({
   }
 };
 
-export { loginUser, getUser, getMoods, saveMood, addEmailToWaitingList };
+const getUserMoods = async () => {
+  const user = await getUser();
+
+  if (!user) {
+    return Error("User not logged in");
+  }
+
+  const moods = await databases.listDocuments(databaseId!, moodsCollectionId!, [
+    Query.equal("user", [user.$id]),
+  ]);
+
+  return moods;
+};
+
+export {
+  loginUser,
+  getUser,
+  getMoods,
+  saveMood,
+  getUserMoods,
+  addEmailToWaitingList,
+};
 export type { Mood };

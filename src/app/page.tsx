@@ -3,7 +3,8 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { addEmailToWaitingList } from "@/lib/appwrite";
+import { addEmailToWaitingList, loginUser } from "@/lib/appwrite";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -27,6 +28,16 @@ export default function Home() {
         setIsLoading(false);
         setError(err.message);
       });
+  };
+
+  const mutation = useMutation({
+    mutationFn: loginUser,
+  });
+
+  const handleLogin = () => {
+    mutation.mutateAsync().then((res) => {
+      console.log(res);
+    });
   };
 
   return (
@@ -105,8 +116,8 @@ export default function Home() {
               </p>
             </div>
           )}
+          <Button onClick={handleLogin}>Login with Google</Button>
         </div>
-        {/* <Button onClick={handleLogin}>Login with Google</Button> */}
       </div>
     </main>
   );

@@ -12,8 +12,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+
+import { getUserMoods } from "@/lib/appwrite";
 
 const Dashboard = () => {
+  const {
+    isLoading,
+    isError,
+    data: userMoodsData,
+    error,
+  } = useQuery({
+    queryKey: ["user-moods"],
+    queryFn: getUserMoods,
+  });
+
+  console.log("i", userMoodsData);
   return (
     <div>
       <div className="flex flex-row justify-between items-end mb-4">
@@ -23,9 +37,11 @@ const Dashboard = () => {
             Get an overall look to the events that you&apos;ve registered.
           </p>
         </div>
-        <Button size="sm">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create Event
+        <Button size="sm" asChild>
+          <a href="/dashboard/event">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Event
+          </a>
         </Button>
       </div>
 
